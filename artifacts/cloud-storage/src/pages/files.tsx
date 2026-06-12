@@ -189,7 +189,7 @@ export function FilesPage() {
         {isDragging && (
           <div className="absolute inset-0 z-50 bg-primary/10 border-4 border-dashed border-primary flex flex-col items-center justify-center rounded-lg m-4 backdrop-blur-sm">
             <UploadCloud className="w-16 h-16 text-primary mb-4" />
-            <h2 className="text-2xl font-bold text-primary">Drop files to upload to {path === "/" ? "Vault" : path}</h2>
+            <h2 className="text-2xl font-bold text-primary">Drop files to upload to {path === "/" ? "Server" : path}</h2>
           </div>
         )}
 
@@ -219,7 +219,7 @@ export function FilesPage() {
                 </div>
                 <h3 className="text-lg font-medium text-foreground">This folder is empty</h3>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-                  Drag and drop files here, or use the upload button to add content to your Vault.
+                  Drag and drop files here, or use the upload button to add content to your Server.
                 </p>
               </div>
             ) : (

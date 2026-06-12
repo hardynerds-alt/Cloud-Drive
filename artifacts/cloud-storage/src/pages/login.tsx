@@ -71,7 +71,7 @@ export function LoginPage() {
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
             <Cloud className="w-8 h-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight">Vault Storage</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">Server Storage</CardTitle>
           <CardDescription>Enter your master password to access your personal cloud</CardDescription>
         </CardHeader>
         <CardContent>
@@ -92,7 +92,7 @@ export function LoginPage() {
               />
               <Button type="submit" className="w-full h-12 text-md" disabled={login.isPending}>
                 {login.isPending ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : null}
-                Access Vault
+                Access Server
               </Button>
             </form>
           </Form>

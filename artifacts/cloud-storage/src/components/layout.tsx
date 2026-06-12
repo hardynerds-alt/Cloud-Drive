@@ -12,7 +12,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-4 lg:p-6 flex flex-col gap-6">
           <Link href="/" className="flex items-center gap-3 font-semibold text-lg text-primary">
             <Cloud className="w-6 h-6" />
-            <span>Vault</span>
+            <span>Server</span>
           </Link>
           
           <nav className="flex flex-col gap-2">

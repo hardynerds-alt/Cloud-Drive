@@ -39,7 +39,7 @@ export function FileToolbar({
       <div className="flex items-center text-sm overflow-x-auto max-w-full pb-2 sm:pb-0 scrollbar-hide">
         <Link href="/?path=/" className="flex items-center text-muted-foreground hover:text-foreground whitespace-nowrap transition-colors p-1 rounded-md hover:bg-accent">
           <Home className="w-4 h-4 mr-1" />
-          Vault
+          Server
         </Link>
         {breadcrumbs.map((crumb, idx) => (
           <div key={crumb.path} className="flex items-center whitespace-nowrap">

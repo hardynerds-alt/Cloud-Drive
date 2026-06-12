@@ -52,7 +52,7 @@ export function CreateFolderModal({ open, onOpenChange, currentPath }: CreateFol
               Create Folder
             </DialogTitle>
             <DialogDescription>
-              Enter a name for the new folder in {currentPath === "/" ? "Vault root" : currentPath}.
+              Enter a name for the new folder in {currentPath === "/" ? "Server root" : currentPath}.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
