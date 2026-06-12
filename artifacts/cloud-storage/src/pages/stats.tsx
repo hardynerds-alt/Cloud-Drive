@@ -59,7 +59,7 @@ export function StatsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Largest Files</CardTitle>
+                <CardTitle>Large Files</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
