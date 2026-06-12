@@ -1,22 +1,10 @@
-import { useGetMe, useLogout } from "@workspace/api-client-react";
-import { Link, useLocation } from "wouter";
-import { HardDrive, LogOut, Cloud, PieChart, Loader2, Sun, Moon } from "lucide-react";
+import { Link } from "wouter";
+import { HardDrive, Cloud, PieChart, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { data: auth } = useGetMe();
-  const logout = useLogout();
-  const [, setLocation] = useLocation();
   const { theme, toggle } = useTheme();
-
-  const handleLogout = () => {
-    logout.mutate(undefined, {
-      onSuccess: () => {
-        setLocation("/login");
-      },
-    });
-  };
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row bg-background text-foreground">
@@ -39,7 +27,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         
-        <div className="p-4 lg:p-6 border-t border-border mt-auto flex flex-col gap-2">
+        <div className="p-4 lg:p-6 border-t border-border mt-auto">
           <Button
             variant="ghost"
             className="w-full justify-start text-muted-foreground hover:text-foreground"
@@ -47,15 +35,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           >
             {theme === "dark" ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start text-muted-foreground hover:text-foreground" 
-            onClick={handleLogout}
-            disabled={logout.isPending}
-          >
-            {logout.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogOut className="w-4 h-4 mr-2" />}
-            Sign Out
           </Button>
         </div>
       </aside>
