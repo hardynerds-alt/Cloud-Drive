@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { HardDrive, Cloud, PieChart, Sun, Moon } from "lucide-react";
+import { Cloud, PieChart, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -27,10 +27,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
 
           <nav className="flex flex-col gap-2">
-            <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent text-sm font-medium transition-colors">
-              <HardDrive className="w-4 h-4" />
-              Files
-            </Link>
             <Link href="/stats" className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent text-sm font-medium transition-colors">
               <PieChart className="w-4 h-4" />
               Storage Stats
