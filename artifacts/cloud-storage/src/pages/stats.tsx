@@ -2,8 +2,9 @@ import { Layout } from "@/components/layout";
 import { useGetStorageStats } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBytes } from "@/lib/format";
-import { Loader2, HardDrive, File, Folder } from "lucide-react";
+import { Loader2, HardDrive, File, Folder, ArrowLeft } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Link } from "wouter";
 
 export function StatsPage() {
   const { data: stats, isLoading } = useGetStorageStats();
@@ -12,6 +13,10 @@ export function StatsPage() {
     <Layout>
       <div className="p-6 lg:p-8 max-w-6xl mx-auto w-full space-y-8">
         <div>
+          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Link>
           <h1 className="text-3xl font-bold tracking-tight mb-2">Storage Statistics</h1>
           <p className="text-muted-foreground">Overview of your personal cloud storage utilization.</p>
         </div>
