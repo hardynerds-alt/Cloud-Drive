@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Cloud, Loader2 } from "lucide-react";
+import { Cloud, Loader2, Sun, Moon } from "lucide-react";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/hooks/use-theme";
 
 const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
@@ -22,6 +23,7 @@ export function LoginPage() {
   const [, setLocation] = useLocation();
   const login = useLogin();
   const { toast } = useToast();
+  const { theme, toggle } = useTheme();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -54,7 +56,16 @@ export function LoginPage() {
   if (authLoading) return null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggle}
+        className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+      >
+        {theme === "dark" ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+      </Button>
       <Card className="w-full max-w-md border-border shadow-lg">
         <CardHeader className="space-y-3 text-center pb-6">
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">

@@ -1,12 +1,14 @@
 import { useGetMe, useLogout } from "@workspace/api-client-react";
 import { Link, useLocation } from "wouter";
-import { HardDrive, LogOut, Cloud, PieChart, Loader2 } from "lucide-react";
+import { HardDrive, LogOut, Cloud, PieChart, Loader2, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/use-theme";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { data: auth } = useGetMe();
   const logout = useLogout();
   const [, setLocation] = useLocation();
+  const { theme, toggle } = useTheme();
 
   const handleLogout = () => {
     logout.mutate(undefined, {
@@ -37,7 +39,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
         
-        <div className="p-4 lg:p-6 border-t border-border mt-auto">
+        <div className="p-4 lg:p-6 border-t border-border mt-auto flex flex-col gap-2">
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-muted-foreground hover:text-foreground"
+            onClick={toggle}
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+            {theme === "dark" ? "Light Mode" : "Dark Mode"}
+          </Button>
           <Button 
             variant="ghost" 
             className="w-full justify-start text-muted-foreground hover:text-foreground" 
