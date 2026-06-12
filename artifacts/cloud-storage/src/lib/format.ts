@@ -11,8 +11,8 @@ export function formatBytes(bytes: number, decimals = 2) {
 }
 
 export function formatDate(dateString: string) {
-  return new Intl.DateTimeFormatformat(new Date(dateString), {
+  return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
-  });
+  }).format(new Date(dateString));
 }
