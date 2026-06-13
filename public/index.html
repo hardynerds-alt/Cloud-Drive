@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Drive</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --border: #dde1e7;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+  --danger-hover: #b91c1c;
+  --success: #16a34a;
+  --header-bg: #1e293b;
+  --header-text: #f1f5f9;
+  --accent: #3b82f6;
+  --row-hover: #f8fafc;
+  --folder-color: #f59e0b;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── Login ─────────────────────────────────────────────────── */
+#login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--header-bg);
+}
+.login-card {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.login-logo .icon { font-size: 48px; }
+.login-logo h1 { font-size: 22px; font-weight: 700; margin-top: 8px; color: var(--text); }
+.login-logo p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-group input:focus { border-color: var(--primary); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 16px; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s, opacity .15s;
+  text-decoration: none; white-space: nowrap;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+.btn-secondary { background: #e2e8f0; color: var(--text); }
+.btn-secondary:hover:not(:disabled) { background: #cbd5e1; }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover:not(:disabled) { background: var(--row-hover); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-full { width: 100%; }
+.error-msg {
+  background: #fef2f2; border: 1px solid #fecaca;
+  color: var(--danger); padding: 10px 14px; border-radius: 8px;
+  margin-bottom: 14px; font-size: 13px; display: none;
+}
+
+/* ── App shell ──────────────────────────────────────────────── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+
+header {
+  background: var(--header-bg); color: var(--header-text);
+  padding: 0 20px; height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; }
+.logo-icon { font-size: 22px; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.btn-logout {
+  background: rgba(255,255,255,0.1); color: var(--header-text);
+  border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px;
+  border-radius: 8px; font-size: 13px; cursor: pointer;
+}
+.btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+.toolbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+
+.breadcrumb {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 2px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 8px 20px; font-size: 13px;
+}
+.breadcrumb a {
+  color: var(--primary); text-decoration: none; padding: 2px 4px; border-radius: 4px;
+}
+.breadcrumb a:hover { background: #eff6ff; }
+.breadcrumb .sep { color: var(--text-muted); margin: 0 2px; }
+.breadcrumb .current { color: var(--text); font-weight: 500; padding: 2px 4px; }
+
+.search-wrap { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
+.search-wrap input {
+  width: 100%; padding: 7px 12px 7px 34px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; outline: none;
+}
+.search-wrap input:focus { border-color: var(--primary); }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+
+main { flex: 1; padding: 0; }
+
+.file-table {
+  width: 100%; border-collapse: collapse; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.file-table th {
+  text-align: left; padding: 10px 16px; font-size: 12px;
+  font-weight: 600; color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .05em; border-bottom: 1px solid var(--border);
+  background: #f8fafc; user-select: none; white-space: nowrap;
+}
+.file-table th.sortable { cursor: pointer; }
+.file-table th.sortable:hover { color: var(--text); }
+.file-table td { padding: 9px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.file-table tr:last-child td { border-bottom: none; }
+.file-table tr:hover td { background: var(--row-hover); }
+.file-table .td-name { width: 99%; }
+.file-table .td-size, .file-table .td-date, .file-table .td-actions {
+  white-space: nowrap; color: var(--text-muted); font-size: 13px;
+}
+.file-table .td-actions { text-align: right; }
+
+.file-name-cell {
+  display: flex; align-items: center; gap: 10px;
+}
+.file-icon { font-size: 20px; flex-shrink: 0; }
+.file-name-text {
+  cursor: pointer; font-weight: 500; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40vw;
+}
+.file-name-text:hover { color: var(--primary); }
+
+.action-btn {
+  background: none; border: none; cursor: pointer; padding: 4px 6px;
+  border-radius: 6px; font-size: 15px; color: var(--text-muted);
+  transition: background .1s, color .1s;
+}
+.action-btn:hover { background: var(--border); color: var(--text); }
+.action-btn.danger:hover { background: #fef2f2; color: var(--danger); }
+
+.empty-state {
+  text-align: center; padding: 60px 20px; color: var(--text-muted);
+  background: var(--surface);
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 15px; }
+
+/* Drop zone */
+#drop-zone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  margin: 20px; padding: 30px; text-align: center;
+  color: var(--text-muted); font-size: 14px; transition: all .2s;
+  display: none;
+}
+#drop-zone.drag-over { border-color: var(--primary); background: #eff6ff; color: var(--primary); }
+
+/* Upload progress */
+#upload-progress {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 20px; min-width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12); display: none; z-index: 200;
+}
+#upload-progress h4 { font-size: 14px; margin-bottom: 10px; }
+.progress-bar-wrap { background: #e2e8f0; border-radius: 6px; height: 8px; overflow: hidden; }
+.progress-bar { background: var(--primary); height: 100%; border-radius: 6px; transition: width .1s; width: 0%; }
+#upload-pct { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+/* ── Modals ─────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: none; align-items: center; justify-content: center;
+  z-index: 300; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 12px;
+  padding: 24px; width: 100%; max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;
+}
+.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+.modal input[type="text"], .modal input[type="date"] {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; margin-top: 6px; outline: none;
+}
+.modal input:focus { border-color: var(--primary); }
+.modal label { font-size: 13px; font-weight: 500; color: var(--text); }
+
+/* Preview modal */
+#preview-modal .modal { max-width: 90vw; width: auto; min-width: 300px; }
+#preview-content { text-align: center; margin-bottom: 16px; }
+#preview-content img { max-width: 100%; max-height: 70vh; border-radius: 8px; object-fit: contain; }
+#preview-content video { max-width: 100%; max-height: 70vh; border-radius: 8px; }
+#preview-content iframe { width: 100%; height: 65vh; border: none; border-radius: 8px; }
+#preview-content .no-preview { padding: 40px; color: var(--text-muted); }
+
+/* Share modal */
+#share-url-wrap { display: flex; gap: 8px; margin-top: 8px; }
+#share-url-input {
+  flex: 1; padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; background: #f8fafc; color: var(--text);
+}
+
+/* Notification toast */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1e293b; color: #fff; padding: 10px 20px;
+  border-radius: 8px; font-size: 14px; z-index: 400;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+#toast.show { opacity: 1; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .toolbar { padding: 8px 12px; }
+  .breadcrumb { padding: 8px 12px; }
+  .file-table th, .file-table td { padding: 8px 10px; }
+  .td-date { display: none; }
+  header { padding: 0 12px; }
+  .logo span { display: none; }
+  .upload-label span { display: none; }
+  #upload-progress { left: 16px; right: 16px; bottom: 16px; min-width: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── Login ─────────────────────────────────────────────── -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">☁️</div>
+      <h1>Cloud Drive</h1>
+      <p>Personal file storage</p>
+    </div>
+    <div id="login-error" class="error-msg"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="password-input">Password</label>
+        <input type="password" id="password-input" placeholder="Enter password" autocomplete="current-password" autofocus>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<!-- ─── App ───────────────────────────────────────────────── -->
+<div id="app">
+  <header>
+    <div class="logo">
+      <span class="logo-icon">☁️</span>
+      <span>Cloud Drive</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <label class="btn btn-primary upload-label" for="file-input" title="Upload files">
+      ⬆ <span>Upload</span>
+    </label>
+    <input type="file" id="file-input" multiple style="display:none" onchange="handleFileInput(this)">
+    <button class="btn btn-secondary" onclick="openNewFolderModal()">📁 New Folder</button>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search files..." oninput="onSearch(this.value)">
+    </div>
+  </div>
+
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <main>
+    <div id="drop-zone">📂 Drop files here to upload</div>
+    <div id="file-list-wrap">
+      <table class="file-table">
+        <thead>
+          <tr>
+            <th class="td-name sortable" onclick="toggleSort('name')">Name <span id="sort-name"></span></th>
+            <th class="td-size sortable" onclick="toggleSort('size')">Size <span id="sort-size"></span></th>
+            <th class="td-date sortable" onclick="toggleSort('date')">Modified <span id="sort-date"></span></th>
+            <th class="td-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="file-tbody"></tbody>
+      </table>
+      <div id="empty-state" class="empty-state" style="display:none">
+        <div class="empty-icon">📂</div>
+        <p>This folder is empty</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Upload progress -->
+<div id="upload-progress">
+  <h4>Uploading…</h4>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div id="upload-pct">0%</div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ─── Rename Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="rename-modal">
+  <div class="modal">
+    <h3>Rename</h3>
+    <label>New name</label>
+    <input type="text" id="rename-input" placeholder="Enter new name">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('rename-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmRename()">Rename</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── New Folder Modal ──────────────────────────────────── -->
+<div class="modal-overlay" id="folder-modal">
+  <div class="modal">
+    <h3>New Folder</h3>
+    <label>Folder name</label>
+    <input type="text" id="folder-input" placeholder="Enter folder name">
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('folder-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmNewFolder()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Share Modal ───────────────────────────────────────── -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h3>🔗 Share Link</h3>
+    <label>Expires (optional)</label>
+    <input type="date" id="share-expires-input">
+    <div id="share-result" style="display:none; margin-top:14px;">
+      <label>Share URL</label>
+      <div id="share-url-wrap">
+        <input type="text" id="share-url-input" readonly>
+        <button class="btn btn-secondary" onclick="copyShareUrl()">Copy</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('share-modal')">Close</button>
+      <button class="btn btn-primary" id="share-generate-btn" onclick="generateShare()">Generate Link</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Preview Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" id="preview-modal" onclick="handlePreviewOverlayClick(event)">
+  <div class="modal">
+    <h3 id="preview-title">Preview</h3>
+    <div id="preview-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('preview-modal')">Close</button>
+      <a class="btn btn-primary" id="preview-download-btn" href="#" download>⬇ Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Delete Confirm Modal ──────────────────────────────── -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <h3>Delete</h3>
+    <p id="delete-msg" style="color:var(--text-muted); font-size:14px; margin-bottom:4px;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('delete-modal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var currentPath = '/';
+var allItems = [];
+var sortField = 'name';
+var sortOrder = 'asc';
+var searchQuery = '';
+var renameTarget = null;
+var deleteTarget = null;
+var shareTarget = null;
+var searchTimer = null;
+
+// ─── Auth ───────────────────────────────────────────────────
+
+function init() {
+  fetch('/api/auth/me')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.authenticated) {
+        showApp();
+        loadFiles(currentPath);
+      } else {
+        showLogin();
+      }
+    })
+    .catch(function() { showLogin(); });
+}
+
+function showLogin() {
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  setupDragDrop();
+}
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var password = document.getElementById('password-input').value;
+  var errEl = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+  errEl.style.display = 'none';
+
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: password })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.authenticated) {
+        showApp();
+        loadFiles('/');
+      } else {
+        errEl.textContent = data.error || 'Login failed';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    })
+    .catch(function() {
+      errEl.textContent = 'Network error';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    });
+});
+
+function logout() {
+  fetch('/api/auth/logout', { method: 'POST' })
+    .then(function() { showLogin(); });
+}
+
+// ─── File list ──────────────────────────────────────────────
+
+function loadFiles(dirPath) {
+  currentPath = dirPath || '/';
+  var url = '/api/files?path=' + encodeURIComponent(currentPath);
+  if (searchQuery) url += '&search=' + encodeURIComponent(searchQuery);
+
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.error) { showToast(data.error, true); return; }
+      allItems = data.items || [];
+      renderBreadcrumbs(data.breadcrumbs || []);
+      renderFiles();
+    })
+    .catch(function() { showToast('Failed to load files', true); });
+}
+
+function renderBreadcrumbs(crumbs) {
+  var el = document.getElementById('breadcrumb');
+  el.innerHTML = '';
+  for (var i = 0; i < crumbs.length; i++) {
+    var c = crumbs[i];
+    if (i === crumbs.length - 1) {
+      var span = document.createElement('span');
+      span.className = 'current';
+      span.textContent = c.name;
+      el.appendChild(span);
+    } else {
+      var a = document.createElement('a');
+      a.href = '#';
+      a.textContent = c.name;
+      a.dataset.path = c.path;
+      a.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        loadFiles(ev.target.dataset.path);
+      });
+      el.appendChild(a);
+      var sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = '/';
+      el.appendChild(sep);
+    }
+  }
+}
+
+function renderFiles() {
+  var items = sortItems(allItems.slice());
+  var tbody = document.getElementById('file-tbody');
+  var empty = document.getElementById('empty-state');
+
+  // Update sort indicators
+  ['name', 'size', 'date'].forEach(function(f) {
+    var el = document.getElementById('sort-' + f);
+    if (!el) return;
+    el.textContent = sortField === f ? (sortOrder === 'asc' ? ' ↑' : ' ↓') : '';
+  });
+
+  if (items.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = '';
+  for (var i = 0; i < items.length; i++) {
+    tbody.appendChild(buildRow(items[i]));
+  }
+}
+
+function buildRow(item) {
+  var tr = document.createElement('tr');
+
+  // Name cell
+  var tdName = document.createElement('td');
+  tdName.className = 'td-name';
+  var nameCell = document.createElement('div');
+  nameCell.className = 'file-name-cell';
+
+  var icon = document.createElement('span');
+  icon.className = 'file-icon';
+  icon.textContent = getIcon(item);
+
+  var nameEl = document.createElement('span');
+  nameEl.className = 'file-name-text';
+  nameEl.textContent = item.name;
+  nameEl.title = item.name;
+
+  if (item.type === 'folder') {
+    nameEl.addEventListener('click', function() { loadFiles(item.path); });
+  } else {
+    nameEl.addEventListener('click', function() { openPreview(item); });
+  }
+
+  nameCell.appendChild(icon);
+  nameCell.appendChild(nameEl);
+  tdName.appendChild(nameCell);
+
+  // Size
+  var tdSize = document.createElement('td');
+  tdSize.className = 'td-size';
+  tdSize.textContent = item.sizeFormatted;
+
+  // Date
+  var tdDate = document.createElement('td');
+  tdDate.className = 'td-date';
+  tdDate.textContent = formatDate(item.modifiedAt);
+
+  // Actions
+  var tdActions = document.createElement('td');
+  tdActions.className = 'td-actions';
+  tdActions.innerHTML = buildActions(item);
+  tdActions.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    if (action === 'download') downloadFile(item);
+    else if (action === 'rename') openRenameModal(item);
+    else if (action === 'delete') openDeleteModal(item);
+    else if (action === 'share') openShareModal(item);
+    else if (action === 'preview') openPreview(item);
+  });
+
+  tr.appendChild(tdName);
+  tr.appendChild(tdSize);
+  tr.appendChild(tdDate);
+  tr.appendChild(tdActions);
+  return tr;
+}
+
+function buildActions(item) {
+  var btns = '';
+  if (item.type === 'file') {
+    btns += '<button class="action-btn" data-action="preview" title="Preview">👁</button>';
+    btns += '<button class="action-btn" data-action="download" title="Download">⬇</button>';
+    btns += '<button class="action-btn" data-action="share" title="Share">🔗</button>';
+  }
+  btns += '<button class="action-btn" data-action="rename" title="Rename">✏️</button>';
+  btns += '<button class="action-btn danger" data-action="delete" title="Delete">🗑</button>';
+  return btns;
+}
+
+function getIcon(item) {
+  if (item.type === 'folder') return '📁';
+  var ext = (item.name.split('.').pop() || '').toLowerCase();
+  if (['jpg','jpeg','png','gif','webp','svg','bmp','ico'].indexOf(ext) !== -1) return '🖼️';
+  if (['mp4','webm','mkv','avi','mov'].indexOf(ext) !== -1) return '🎬';
+  if (ext === 'pdf') return '📕';
+  if (['mp3','wav','ogg','flac','m4a'].indexOf(ext) !== -1) return '🎵';
+  if (['zip','tar','gz','7z','rar'].indexOf(ext) !== -1) return '📦';
+  if (['js','ts','py','java','cpp','c','go','rs','rb','php','html','css'].indexOf(ext) !== -1) return '💻';
+  if (['txt','md','log','csv'].indexOf(ext) !== -1) return '📄';
+  if (['doc','docx'].indexOf(ext) !== -1) return '📝';
+  if (['xls','xlsx'].indexOf(ext) !== -1) return '📊';
+  if (['ppt','pptx'].indexOf(ext) !== -1) return '📊';
+  return '📄';
+}
+
+function formatDate(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// ─── Sort ───────────────────────────────────────────────────
+
+function toggleSort(field) {
+  if (sortField === field) {
+    sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField = field;
+    sortOrder = 'asc';
+  }
+  renderFiles();
+}
+
+function sortItems(items) {
+  return items.sort(function(a, b) {
+    if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+    var cmp = 0;
+    if (sortField === 'size') {
+      cmp = a.size - b.size;
+    } else if (sortField === 'date') {
+      cmp = new Date(a.modifiedAt).getTime() - new Date(b.modifiedAt).getTime();
+    } else {
+      cmp = a.name.localeCompare(b.name);
+    }
+    return sortOrder === 'desc' ? -cmp : cmp;
+  });
+}
+
+// ─── Search ─────────────────────────────────────────────────
+
+function onSearch(val) {
+  searchQuery = val;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(function() {
+    loadFiles(currentPath);
+  }, 300);
+}
+
+// ─── Upload ─────────────────────────────────────────────────
+
+function handleFileInput(input) {
+  if (!input.files || input.files.length === 0) return;
+  uploadFiles(input.files);
+  input.value = '';
+}
+
+function uploadFiles(files) {
+  var formData = new FormData();
+  for (var i = 0; i < files.length; i++) {
+    formData.append('files', files[i]);
+  }
+
+  var progressWrap = document.getElementById('upload-progress');
+  var bar = document.getElementById('progress-bar');
+  var pct = document.getElementById('upload-pct');
+  progressWrap.style.display = 'block';
+  bar.style.width = '0%';
+  pct.textContent = '0%';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/api/upload?path=' + encodeURIComponent(currentPath));
+
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      var p = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = p + '%';
+      pct.textContent = p + '%';
+    }
+  };
+
+  xhr.onload = function() {
+    progressWrap.style.display = 'none';
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+        showToast('Uploaded ' + data.uploaded + ' file(s)');
+      } catch (e) {
+        showToast('Upload complete');
+      }
+      loadFiles(currentPath);
+    } else {
+      showToast('Upload failed', true);
+    }
+  };
+
+  xhr.onerror = function() {
+    progressWrap.style.display = 'none';
+    showToast('Upload error', true);
+  };
+
+  xhr.send(formData);
+}
+
+function setupDragDrop() {
+  var dropZone = document.getElementById('drop-zone');
+  var main = document.querySelector('main');
+
+  main.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    dropZone.style.display = 'block';
+    dropZone.classList.add('drag-over');
+  });
+
+  main.addEventListener('dragleave', function(e) {
+    if (!main.contains(e.relatedTarget)) {
+      dropZone.classList.remove('drag-over');
+      dropZone.style.display = 'none';
+    }
+  });
+
+  main.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    dropZone.style.display = 'none';
+    var files = e.dataTransfer.files;
+    if (files && files.length > 0) uploadFiles(files);
+  });
+}
+
+// ─── Download ───────────────────────────────────────────────
+
+function downloadFile(item) {
+  var a = document.createElement('a');
+  a.href = '/api/download?path=' + encodeURIComponent(item.path);
+  a.download = item.name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ─── Delete ─────────────────────────────────────────────────
+
+function openDeleteModal(item) {
+  deleteTarget = item;
+  var msg = document.getElementById('delete-msg');
+  msg.textContent = 'Delete "' + item.name + '"' + (item.type === 'folder' ? ' and all its contents?' : '?') + ' This cannot be undone.';
+  openModal('delete-modal');
+}
+
+function confirmDelete() {
+  if (!deleteTarget) return;
+  fetch('/api/file?path=' + encodeURIComponent(deleteTarget.path), { method: 'DELETE' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      closeModal('delete-modal');
+      if (data.success) {
+        showToast(deleteTarget.name + ' deleted');
+        loadFiles(currentPath);
+      } else {
+        showToast(data.error || 'Delete failed', true);
+      }
+      deleteTarget = null;
+    })
+    .catch(function() { showToast('Delete failed', true); });
+}
+
+// ─── Rename ─────────────────────────────────────────────────
+
+function openRenameModal(item) {
+  renameTarget = item;
+  var input = document.getElementById('rename-input');
+  input.value = item.name;
+  openModal('rename-modal');
+  setTimeout(function() { input.focus(); input.select(); }, 50);
+}
+
+function confirmRename() {
+  if (!renameTarget) return;
+  var newName = document.getElementById('rename-input').value.trim();
+  if (!newName) return;
+
+  var dir = renameTarget.path.substring(0, renameTarget.path.lastIndexOf('/') + 1);
+  var toPath = dir + newName;
+
+  fetch('/api/file', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: renameTarget.path, to: toPath })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      closeModal('rename-modal');
+      if (data.success) {
+        showToast('Renamed to ' + newName);
+        loadFiles(currentPath);
+      } else {
+        showToast(data.error || 'Rename failed', true);
+      }
+      renameTarget = null;
+    })
+    .catch(function() { showToast('Rename failed', true); });
+}
+
+document.getElementById('rename-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmRename();
+  if (e.key === 'Escape') closeModal('rename-modal');
+});
+
+// ─── New folder ─────────────────────────────────────────────
+
+function openNewFolderModal() {
+  document.getElementById('folder-input').value = '';
+  openModal('folder-modal');
+  setTimeout(function() { document.getElementById('folder-input').focus(); }, 50);
+}
+
+function confirmNewFolder() {
+  var name = document.getElementById('folder-input').value.trim();
+  if (!name) return;
+  var folderPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
+
+  fetch('/api/folders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: folderPath })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      closeModal('folder-modal');
+      if (data.success) {
+        showToast('Folder created');
+        loadFiles(currentPath);
+      } else {
+        showToast(data.error || 'Failed', true);
+      }
+    })
+    .catch(function() { showToast('Failed', true); });
+}
+
+document.getElementById('folder-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmNewFolder();
+  if (e.key === 'Escape') closeModal('folder-modal');
+});
+
+// ─── Share ──────────────────────────────────────────────────
+
+function openShareModal(item) {
+  shareTarget = item;
+  document.getElementById('share-expires-input').value = '';
+  document.getElementById('share-result').style.display = 'none';
+  document.getElementById('share-generate-btn').style.display = 'inline-flex';
+  openModal('share-modal');
+}
+
+function generateShare() {
+  if (!shareTarget) return;
+  var expires = document.getElementById('share-expires-input').value || null;
+  document.getElementById('share-generate-btn').disabled = true;
+
+  fetch('/api/share', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: shareTarget.path, expiresAt: expires })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('share-generate-btn').disabled = false;
+      if (data.url) {
+        document.getElementById('share-url-input').value = data.url;
+        document.getElementById('share-result').style.display = 'block';
+        document.getElementById('share-generate-btn').style.display = 'none';
+      } else {
+        showToast(data.error || 'Share failed', true);
+      }
+    })
+    .catch(function() {
+      document.getElementById('share-generate-btn').disabled = false;
+      showToast('Share failed', true);
+    });
+}
+
+function copyShareUrl() {
+  var input = document.getElementById('share-url-input');
+  input.select();
+  try {
+    document.execCommand('copy');
+    showToast('Link copied!');
+  } catch (e) {
+    showToast('Copy failed — select and copy manually');
+  }
+}
+
+// ─── Preview ────────────────────────────────────────────────
+
+function openPreview(item) {
+  var ext = (item.name.split('.').pop() || '').toLowerCase();
+  var previewUrl = '/api/preview?path=' + encodeURIComponent(item.path);
+  var downloadUrl = '/api/download?path=' + encodeURIComponent(item.path);
+  var content = document.getElementById('preview-content');
+  var title = document.getElementById('preview-title');
+  var dlBtn = document.getElementById('preview-download-btn');
+
+  title.textContent = item.name;
+  dlBtn.href = downloadUrl;
+  dlBtn.download = item.name;
+  content.innerHTML = '';
+
+  var images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+  var videos = ['mp4', 'webm'];
+
+  if (images.indexOf(ext) !== -1) {
+    var img = document.createElement('img');
+    img.src = previewUrl;
+    img.alt = item.name;
+    content.appendChild(img);
+  } else if (videos.indexOf(ext) !== -1) {
+    var video = document.createElement('video');
+    video.src = previewUrl;
+    video.controls = true;
+    video.autoplay = false;
+    content.appendChild(video);
+  } else if (ext === 'pdf') {
+    var iframe = document.createElement('iframe');
+    iframe.src = previewUrl;
+    iframe.title = item.name;
+    content.appendChild(iframe);
+  } else {
+    var msg = document.createElement('div');
+    msg.className = 'no-preview';
+    msg.textContent = 'No preview available for this file type.';
+    content.appendChild(msg);
+  }
+
+  openModal('preview-modal');
+}
+
+function handlePreviewOverlayClick(e) {
+  if (e.target === document.getElementById('preview-modal')) {
+    closeModal('preview-modal');
+    document.getElementById('preview-content').innerHTML = '';
+  }
+}
+
+// ─── Modals ─────────────────────────────────────────────────
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'preview-modal') {
+    document.getElementById('preview-content').innerHTML = '';
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var open = document.querySelector('.modal-overlay.open');
+    if (open) {
+      closeModal(open.id);
+    }
+  }
+});
+
+// ─── Toast ──────────────────────────────────────────────────
+
+var toastTimer = null;
+function showToast(msg, isError) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isError ? '#dc2626' : '#1e293b';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() {
+    el.classList.remove('show');
+  }, 3000);
+}
+
+// ─── Init ───────────────────────────────────────────────────
+
+init();
+</script>
+</body>
+</html>

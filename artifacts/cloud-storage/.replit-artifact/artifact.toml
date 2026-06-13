@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Cloud Storage"
+title = "Cloud Drive"
 version = "1.0.0"
 id = "artifacts/cloud-storage"
 router = "path"
@@ -12,20 +12,13 @@ version = "1.0.0"
 [[services]]
 name = "web"
 paths = [ "/" ]
-localPort = 18153
+localPort = 3000
 
 [services.development]
-run = "pnpm --filter @workspace/cloud-storage run dev"
+run = "node server.js"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/cloud-storage", "run", "build" ]
-publicDir = "artifacts/cloud-storage/dist/public"
-serve = "static"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+run = "node server.js"
 
 [services.env]
-PORT = "18153"
-BASE_PATH = "/"
+PORT = "3000"
