@@ -1,0 +1,121 @@
+Rewrite this project into a lightweight Node.js application that runs on Android 6 Termux with Node.js 12 and npm 6.
+
+IMPORTANT:
+
+* Do not use pnpm.
+* Do not use workspaces.
+* Do not use catalog dependencies.
+* Do not use Vite.
+* Do not use React.
+* Do not use Next.js.
+* Do not use TypeScript.
+* Do not use Tailwind build tooling.
+* Do not use monorepos.
+* Do not use modern Node.js features requiring Node 14+.
+
+Requirements:
+
+1. Single package application.
+
+2. Plain Express.js only.
+
+3. Compatible with:
+
+   * Node.js 12
+   * npm 6
+   * Android 6 Termux
+
+4. Project structure:
+
+/server.js
+/public
+/storage
+/uploads
+/package.json
+
+5. Add package.json:
+
+{
+"name": "cloud-drive",
+"version": "1.0.0",
+"main": "server.js",
+"scripts": {
+"start": "node server.js"
+}
+}
+
+6. Build a web-based file manager.
+
+Features:
+
+* Login page
+* Dashboard
+* File browser
+* Folder browser
+* Upload files
+* Download files
+* Delete files
+* Rename files
+* Create folders
+* Search files
+* Display file size
+* Display modified date
+
+7. Storage location:
+
+./storage
+
+Any file placed inside storage should automatically appear in the UI.
+
+8. Use multer for uploads.
+
+9. Use express-session for authentication.
+
+10. Use SQLite for metadata.
+
+11. Add image preview support:
+
+* jpg
+* jpeg
+* png
+* gif
+* webp
+
+12. Add video playback support:
+
+* mp4
+* webm
+
+13. Add PDF preview support.
+
+14. Add share links:
+
+/share/:id
+
+15. Add simple responsive CSS without build tools.
+
+16. Use only these dependencies if possible:
+
+* express
+* multer
+* sqlite3
+* express-session
+* mime-types
+
+17. Remove all existing:
+
+* React code
+* Vite configuration
+* pnpm files
+* workspace files
+* catalog references
+* TypeScript files
+
+18. Generate complete runnable code.
+
+19. After generation, provide exact commands:
+
+npm install
+npm start
+
+20. The final application must run on Android 6 Termux using Node.js 12 without requiring pnpm.
