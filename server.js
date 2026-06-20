@@ -349,6 +349,61 @@ app.get('/share/:token', async function (req, res) {
 });
 
 // ---------------------------------------------------------------------------
+// Storage stats
+// ---------------------------------------------------------------------------
+
+async function getStorageStats() {
+  var totalFiles = 0;
+  var totalFolders = 0;
+  var totalSize = 0;
+  var allFiles = [];
+
+  async function walk(dir) {
+    var entries;
+    try {
+      entries = await fs.promises.readdir(dir, { withFileTypes: true });
+    } catch (e) {
+      return;
+    }
+    for (var i = 0; i < entries.length; i++) {
+      var entry = entries[i];
+      var fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        totalFolders++;
+        await walk(fullPath);
+      } else {
+        try {
+          var stat = await fs.promises.stat(fullPath);
+          totalFiles++;
+          totalSize += stat.size;
+          allFiles.push(statToItem(fullPath, stat));
+        } catch (e) {
+          // skip
+        }
+      }
+    }
+  }
+
+  await walk(STORAGE_ROOT);
+  allFiles.sort(function (a, b) { return b.size - a.size; });
+  return {
+    totalFiles: totalFiles,
+    totalFolders: totalFolders,
+    totalSize: totalSize,
+    largestFiles: allFiles.slice(0, 10),
+  };
+}
+
+app.get('/api/storage/stats', requireAuth, async function (req, res) {
+  try {
+    var stats = await getStorageStats();
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get stats' });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Catch-all: SPA fallback
 // ---------------------------------------------------------------------------
 
