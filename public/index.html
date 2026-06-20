@@ -978,8 +978,10 @@ function showLogin() {
   document.getElementById('pg-app').style.display   = 'none';
 }
 function showApp() {
-  document.getElementById('pg-login').style.display = 'none';
-  document.getElementById('pg-app').style.display   = 'flex';
+  document.getElementById('pg-login').style.display   = 'none';
+  document.getElementById('pg-app').style.display     = 'flex';
+  document.getElementById('view-files').style.display = 'block';
+  document.getElementById('view-stats').style.display = 'none';
   setupDragDrop();
 }
 
@@ -1021,14 +1023,14 @@ function logout() {
 
 /* ── Navigation ─────────────────────────────────────────────── */
 function showFiles() {
-  document.getElementById('view-files').style.display = '';
+  document.getElementById('view-files').style.display = 'block';
   document.getElementById('view-stats').style.display = 'none';
   document.getElementById('nav-stats').classList.remove('active');
 }
 
 function showStats() {
   document.getElementById('view-files').style.display = 'none';
-  document.getElementById('view-stats').style.display = '';
+  document.getElementById('view-stats').style.display = 'block';
   document.getElementById('nav-stats').classList.add('active');
   loadStats();
 }
